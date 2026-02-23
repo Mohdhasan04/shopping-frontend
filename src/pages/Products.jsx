@@ -5,9 +5,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
 // Icons
-import { 
-  FiFilter, FiX, FiSearch, FiStar, FiTrendingUp, 
-  FiRefreshCw, FiChevronLeft, FiChevronRight, 
+import {
+  FiFilter, FiX, FiSearch, FiStar, FiTrendingUp,
+  FiRefreshCw, FiChevronLeft, FiChevronRight,
   FiPackage, FiGrid, FiList, FiChevronDown
 } from 'react-icons/fi';
 import { TbArrowsSort } from 'react-icons/tb';
@@ -16,7 +16,7 @@ import { IoOptionsOutline } from 'react-icons/io5';
 const Products = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  
+
   const [products, setProducts] = useState([]);
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,7 +24,7 @@ const Products = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
+
   const [filters, setFilters] = useState({
     category: searchParams.get('category') || '',
     search: searchParams.get('search') || '',
@@ -60,13 +60,14 @@ const Products = () => {
     const fetchAllProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://${window.location.hostname}:5000/api/products`);
-        
+        const apiUrl = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:5000/api`;
+        const response = await fetch(`${apiUrl}/products`);
+
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
-        
+
         const data = await response.json();
         const productsList = data.products || data || [];
-        
+
         // Add sample data if empty (for demo)
         if (productsList.length === 0) {
           const sampleProducts = generateSampleProducts();
@@ -74,7 +75,7 @@ const Products = () => {
         } else {
           setAllProducts(productsList);
         }
-        
+
         setHasError(false);
       } catch (error) {
         console.error('Error fetching products:', error);
@@ -85,7 +86,7 @@ const Products = () => {
         setLoading(false);
       }
     };
-    
+
     fetchAllProducts();
   }, []);
 
@@ -93,7 +94,7 @@ const Products = () => {
   const generateSampleProducts = () => {
     const categories = ['Face Care', 'Hair Care', 'Body Care', 'Special Care'];
     const brands = ['Loreal', 'Garnier', 'Nivea', 'Ponds', 'Dove', 'Vaseline'];
-    
+
     return Array.from({ length: 24 }, (_, i) => ({
       id: i + 1,
       name: `${brands[i % brands.length]} ${categories[i % 4]} Product ${i + 1}`,
@@ -123,7 +124,7 @@ const Products = () => {
         'body-care': 3,
         'special-care': 4
       };
-      
+
       const categoryId = categoryMap[filters.category];
       if (categoryId) {
         result = result.filter(product => Number(product.category_id) === Number(categoryId));
@@ -143,7 +144,7 @@ const Products = () => {
     // Price filter
     const minPrice = parseFloat(filters.minPrice) || 0;
     const maxPrice = parseFloat(filters.maxPrice) || 10000;
-    result = result.filter(product => 
+    result = result.filter(product =>
       product.price >= minPrice && product.price <= maxPrice
     );
 
@@ -186,7 +187,7 @@ const Products = () => {
   const handleFilterChange = (newFilters) => {
     const updatedFilters = { ...filters, ...newFilters, page: 1 };
     setFilters(updatedFilters);
-    
+
     // Update URL
     const params = new URLSearchParams();
     Object.entries(updatedFilters).forEach(([key, value]) => {
@@ -194,7 +195,7 @@ const Products = () => {
         params.append(key, value);
       }
     });
-    
+
     navigate(`/products?${params.toString()}`, { replace: true });
   };
 
@@ -202,7 +203,7 @@ const Products = () => {
   const handlePageChange = (newPage) => {
     const updatedFilters = { ...filters, page: newPage };
     setFilters(updatedFilters);
-    
+
     // Update URL
     const params = new URLSearchParams();
     Object.entries(updatedFilters).forEach(([key, value]) => {
@@ -210,7 +211,7 @@ const Products = () => {
         params.append(key, value);
       }
     });
-    
+
     navigate(`/products?${params.toString()}`);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -238,7 +239,7 @@ const Products = () => {
           <div className="h-12 bg-gradient-to-r from-gray-200 to-gray-300 rounded-2xl w-64 animate-pulse mb-6"></div>
           <div className="h-6 bg-gray-200 rounded-lg w-96 animate-pulse"></div>
         </div>
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Filter Skeleton */}
           <div className="space-y-4">
@@ -246,7 +247,7 @@ const Products = () => {
               <div key={i} className="h-32 bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl animate-pulse"></div>
             ))}
           </div>
-          
+
           {/* Products Skeleton */}
           <div className="lg:col-span-3">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
@@ -282,12 +283,12 @@ const Products = () => {
               Discover Amazing Products
             </h1>
             <p className="text-xl text-gray-600 mb-8">
-              {hasError ? 
-                'Showing demo products for preview' : 
+              {hasError ?
+                'Showing demo products for preview' :
                 `${totalProducts} premium products waiting for you`
               }
             </p>
-            
+
             {/* Search Bar */}
             <div className="max-w-2xl mx-auto">
               <div className="relative">
@@ -323,7 +324,7 @@ const Products = () => {
               </span>
             )}
           </button>
-          
+
           <div className="flex items-center space-x-2">
             <button
               onClick={() => setViewMode('grid')}
@@ -343,7 +344,7 @@ const Products = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Desktop Filters */}
           <div className="hidden lg:block">
-            <FilterSidebar 
+            <FilterSidebar
               filters={filters}
               allProducts={allProducts}
               onFilterChange={handleFilterChange}
@@ -380,7 +381,7 @@ const Products = () => {
                         <FiX className="text-xl" />
                       </button>
                     </div>
-                    <FilterSidebar 
+                    <FilterSidebar
                       filters={filters}
                       allProducts={allProducts}
                       onFilterChange={handleFilterChange}
@@ -407,7 +408,7 @@ const Products = () => {
                   {filters.category && ` • Category: ${filters.category.replace('-', ' ')}`}
                 </p>
               </div>
-              
+
               <div className="flex items-center space-x-4 mt-4 md:mt-0">
                 <div className="hidden lg:flex items-center space-x-2">
                   <button
@@ -423,7 +424,7 @@ const Products = () => {
                     <FiList className="text-xl" />
                   </button>
                 </div>
-                
+
                 <div className="relative">
                   <select
                     value={filters.sort}
@@ -443,7 +444,7 @@ const Products = () => {
 
             {/* Products Grid/List */}
             {products.length === 0 ? (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="text-center py-20 bg-white rounded-2xl shadow-sm border"
@@ -480,8 +481,8 @@ const Products = () => {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <ProductCard 
-                        product={product} 
+                      <ProductCard
+                        product={product}
                         layout={viewMode}
                       />
                     </motion.div>
@@ -490,7 +491,7 @@ const Products = () => {
 
                 {/* Pagination */}
                 {totalProducts > filters.limit && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     className="mt-12 pt-8 border-t border-gray-200"
@@ -499,7 +500,7 @@ const Products = () => {
                       <div className="text-sm text-gray-600">
                         Showing {((filters.page - 1) * filters.limit) + 1} to {Math.min(filters.page * filters.limit, totalProducts)} of {totalProducts}
                       </div>
-                      
+
                       <div className="flex items-center space-x-2">
                         <button
                           onClick={() => handlePageChange(filters.page - 1)}
@@ -509,38 +510,37 @@ const Products = () => {
                           <FiChevronLeft />
                           <span>Previous</span>
                         </button>
-                        
+
                         <div className="flex items-center space-x-1">
                           {[...Array(Math.ceil(totalProducts / filters.limit))].map((_, i) => {
                             const pageNum = i + 1;
-                            const showPage = 
+                            const showPage =
                               pageNum === 1 ||
                               pageNum === Math.ceil(totalProducts / filters.limit) ||
                               Math.abs(pageNum - filters.page) <= 1;
-                            
+
                             if (!showPage) {
                               if (pageNum === filters.page - 2 || pageNum === filters.page + 2) {
                                 return <span key={pageNum} className="px-3">...</span>;
                               }
                               return null;
                             }
-                            
+
                             return (
                               <button
                                 key={pageNum}
                                 onClick={() => handlePageChange(pageNum)}
-                                className={`w-10 h-10 rounded-xl font-medium transition-colors ${
-                                  filters.page === pageNum
+                                className={`w-10 h-10 rounded-xl font-medium transition-colors ${filters.page === pageNum
                                     ? 'bg-primary-500 text-white'
                                     : 'text-gray-700 hover:bg-gray-100'
-                                }`}
+                                  }`}
                               >
                                 {pageNum}
                               </button>
                             );
                           })}
                         </div>
-                        
+
                         <button
                           onClick={() => handlePageChange(filters.page + 1)}
                           disabled={filters.page >= Math.ceil(totalProducts / filters.limit)}
@@ -566,25 +566,25 @@ const Products = () => {
 const FilterSidebar = ({ filters, allProducts, onFilterChange, onClearFilters, totalProducts, isMobile = false }) => {
   const categories = [
     { value: '', label: 'All Categories', count: allProducts.length },
-    { 
-      value: 'face-care', 
-      label: 'Face Care', 
-      count: allProducts.filter(p => Number(p.category_id) === 1).length 
+    {
+      value: 'face-care',
+      label: 'Face Care',
+      count: allProducts.filter(p => Number(p.category_id) === 1).length
     },
-    { 
-      value: 'hair-care', 
-      label: 'Hair Care', 
-      count: allProducts.filter(p => Number(p.category_id) === 2).length 
+    {
+      value: 'hair-care',
+      label: 'Hair Care',
+      count: allProducts.filter(p => Number(p.category_id) === 2).length
     },
-    { 
-      value: 'body-care', 
-      label: 'Body Care', 
-      count: allProducts.filter(p => Number(p.category_id) === 3).length 
+    {
+      value: 'body-care',
+      label: 'Body Care',
+      count: allProducts.filter(p => Number(p.category_id) === 3).length
     },
-    { 
-      value: 'special-care', 
-      label: 'Special Care', 
-      count: allProducts.filter(p => Number(p.category_id) === 4).length 
+    {
+      value: 'special-care',
+      label: 'Special Care',
+      count: allProducts.filter(p => Number(p.category_id) === 4).length
     }
   ];
 
@@ -610,7 +610,7 @@ const FilterSidebar = ({ filters, allProducts, onFilterChange, onClearFilters, t
               <p className="text-sm text-gray-500">{totalProducts} products</p>
             </div>
           </div>
-          
+
           {(filters.category || filters.minPrice || filters.maxPrice) && (
             <button
               onClick={onClearFilters}
@@ -629,16 +629,14 @@ const FilterSidebar = ({ filters, allProducts, onFilterChange, onClearFilters, t
               <button
                 key={cat.value}
                 onClick={() => onFilterChange({ category: cat.value })}
-                className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${
-                  filters.category === cat.value
+                className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${filters.category === cat.value
                     ? 'bg-primary-50 text-primary-700 border border-primary-200'
                     : 'text-gray-700 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-3 h-3 rounded-full ${
-                    cat.value === filters.category ? 'bg-primary-500' : 'bg-gray-300'
-                  }`} />
+                  <div className={`w-3 h-3 rounded-full ${cat.value === filters.category ? 'bg-primary-500' : 'bg-gray-300'
+                    }`} />
                   <span>{cat.label}</span>
                 </div>
                 <span className="text-sm font-medium bg-gray-100 px-2 py-1 rounded-full">
@@ -656,15 +654,14 @@ const FilterSidebar = ({ filters, allProducts, onFilterChange, onClearFilters, t
             {priceRanges.map((range) => (
               <button
                 key={range.label}
-                onClick={() => onFilterChange({ 
-                  minPrice: range.min, 
-                  maxPrice: range.max 
+                onClick={() => onFilterChange({
+                  minPrice: range.min,
+                  maxPrice: range.max
                 })}
-                className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${
-                  Number(filters.minPrice) === range.min && Number(filters.maxPrice) === range.max
+                className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${Number(filters.minPrice) === range.min && Number(filters.maxPrice) === range.max
                     ? 'bg-primary-50 text-primary-700 border border-primary-200'
                     : 'text-gray-700 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 <span>{range.label}</span>
                 <FiTrendingUp className="text-gray-400" />

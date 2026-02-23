@@ -35,7 +35,9 @@ const showProductDetailsToast = (type, message) => {
 
 // ✅ IMAGE HELPER FUNCTIONS
 const getSafeImageUrl = (imageInput, productName = 'Product') => {
-  const backendUrl = `http://${window.location.hostname}:5000`;
+  const backendUrl = process.env.REACT_APP_API_URL
+    ? process.env.REACT_APP_API_URL.replace('/api', '')
+    : `http://${window.location.hostname}:5000`;
   let imagePath = '';
 
   if (typeof imageInput === 'string') {
@@ -404,8 +406,8 @@ const ProductDetails = () => {
                       key={idx}
                       onClick={() => setSelectedImage(idx)}
                       className={`border-2 rounded-xl overflow-hidden transition-all duration-300 ${selectedImage === idx
-                          ? 'border-primary-500 ring-2 ring-primary-200 shadow-md'
-                          : 'border-gray-200 hover:border-primary-300 hover:shadow-sm'
+                        ? 'border-primary-500 ring-2 ring-primary-200 shadow-md'
+                        : 'border-gray-200 hover:border-primary-300 hover:shadow-sm'
                         }`}
                     >
                       <img
@@ -435,8 +437,8 @@ const ProductDetails = () => {
                   </span>
                 </div>
                 <span className={`px-4 py-1.5 rounded-full text-sm font-semibold flex items-center space-x-2 ${isOutOfStock
-                    ? 'bg-red-100 text-red-700 border border-red-300'
-                    : 'bg-green-100 text-green-700 border border-green-300'
+                  ? 'bg-red-100 text-red-700 border border-red-300'
+                  : 'bg-green-100 text-green-700 border border-green-300'
                   }`}>
                   <div className={`w-2 h-2 rounded-full ${isOutOfStock ? 'bg-red-500' : 'bg-green-500'}`}></div>
                   <span>{isOutOfStock ? 'Out of Stock' : 'In Stock'}</span>
@@ -469,8 +471,8 @@ const ProductDetails = () => {
                         key={i}
                         onClick={() => setSelectedVariant(v)}
                         className={`px-4 py-2 border-2 rounded-xl transition-all font-medium ${selectedVariant?.size === v.size
-                            ? 'border-primary-600 bg-primary-50 text-primary-700'
-                            : 'border-gray-200 text-gray-600 hover:border-primary-300 hover:bg-gray-50'
+                          ? 'border-primary-600 bg-primary-50 text-primary-700'
+                          : 'border-gray-200 text-gray-600 hover:border-primary-300 hover:bg-gray-50'
                           }`}
                       >
                         {v.size}
@@ -539,8 +541,8 @@ const ProductDetails = () => {
                   onClick={handleAddToCart}
                   disabled={isOutOfStock}
                   className={`flex-1 flex items-center justify-center space-x-3 py-4 text-lg font-bold rounded-xl transition-all duration-300 ${isOutOfStock
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white hover:shadow-xl hover:scale-[1.02] shadow-lg'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-gradient-to-r from-primary-600 to-emerald-600 text-white hover:shadow-xl hover:scale-[1.02] shadow-lg'
                     }`}
                 >
                   <FaShoppingCart className="w-5 h-5" />
@@ -551,8 +553,8 @@ const ProductDetails = () => {
                   onClick={handleBuyNow}
                   disabled={isOutOfStock}
                   className={`flex-1 flex items-center justify-center space-x-3 py-4 text-lg font-bold rounded-xl border-2 transition-all duration-300 ${isOutOfStock
-                      ? 'border-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'border-primary-600 text-primary-600 hover:bg-gradient-to-r hover:from-primary-600 hover:to-emerald-600 hover:text-white hover:border-transparent'
+                    ? 'border-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'border-primary-600 text-primary-600 hover:bg-gradient-to-r hover:from-primary-600 hover:to-emerald-600 hover:text-white hover:border-transparent'
                     }`}
                 >
                   <FaCheckCircle className="w-5 h-5" />
@@ -563,10 +565,10 @@ const ProductDetails = () => {
                   onClick={handleWishlistToggle}
                   disabled={isOutOfStock}
                   className={`px-6 py-4 text-lg rounded-xl border-2 transition-all duration-300 flex items-center justify-center space-x-2 ${isOutOfStock
-                      ? 'border-gray-300 text-gray-500 cursor-not-allowed'
-                      : isInWishlist(product.id)
-                        ? 'border-red-500 bg-gradient-to-r from-red-50 to-pink-50 text-red-600 hover:bg-red-100'
-                        : 'border-gray-300 text-gray-700 hover:border-red-500 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50'
+                    ? 'border-gray-300 text-gray-500 cursor-not-allowed'
+                    : isInWishlist(product.id)
+                      ? 'border-red-500 bg-gradient-to-r from-red-50 to-pink-50 text-red-600 hover:bg-red-100'
+                      : 'border-gray-300 text-gray-700 hover:border-red-500 hover:bg-gradient-to-r hover:from-red-50 hover:to-pink-50'
                     }`}
                 >
                   <FaHeart className={`w-5 h-5 ${isInWishlist(product.id) ? 'fill-current' : ''}`} />
@@ -617,8 +619,8 @@ const ProductDetails = () => {
               <button
                 onClick={() => setActiveTab('description')}
                 className={`flex-1 py-5 text-lg font-semibold flex items-center justify-center space-x-2 transition-all duration-300 ${activeTab === 'description'
-                    ? 'text-primary-600 border-b-2 border-primary-600 bg-gradient-to-b from-primary-50 to-transparent'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'text-primary-600 border-b-2 border-primary-600 bg-gradient-to-b from-primary-50 to-transparent'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
               >
                 <span>Description</span>
@@ -626,8 +628,8 @@ const ProductDetails = () => {
               <button
                 onClick={() => setActiveTab('reviews')}
                 className={`flex-1 py-5 text-lg font-semibold flex items-center justify-center space-x-2 transition-all duration-300 ${activeTab === 'reviews'
-                    ? 'text-primary-600 border-b-2 border-primary-600 bg-gradient-to-b from-primary-50 to-transparent'
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                  ? 'text-primary-600 border-b-2 border-primary-600 bg-gradient-to-b from-primary-50 to-transparent'
+                  : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                   }`}
               >
                 <FaStar className="w-4 h-4" />
@@ -637,8 +639,8 @@ const ProductDetails = () => {
                 <button
                   onClick={() => setActiveTab('ingredients')}
                   className={`flex-1 py-5 text-lg font-semibold flex items-center justify-center space-x-2 transition-all duration-300 ${activeTab === 'ingredients'
-                      ? 'text-primary-600 border-b-2 border-primary-600 bg-gradient-to-b from-primary-50 to-transparent'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
+                    ? 'text-primary-600 border-b-2 border-primary-600 bg-gradient-to-b from-primary-50 to-transparent'
+                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
                     }`}
                 >
                   <span>Ingredients</span>

@@ -3,108 +3,110 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import ProductCard from '../components/ProductCard';
 
-import { 
-  FaLeaf, FaFlask, FaPaw, FaRecycle, 
+import {
+  FaLeaf, FaFlask, FaPaw, FaRecycle,
   FaUserMd, FaShower, FaSpa, FaArrowRight,
-  FaShoppingBag, FaStar, FaTruck, FaSync 
+  FaShoppingBag, FaStar, FaTruck, FaSync
 } from 'react-icons/fa';
 import { GiLotusFlower } from 'react-icons/gi';
 
 const Home = () => {
   const [allProducts, setAllProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const [faceCareProducts, setFaceCareProducts] = useState([]);
   const [hairCareProducts, setHairCareProducts] = useState([]);
   const [bodyCareProducts, setBodyCareProducts] = useState([]);
 
   // ✅ COMPLETE fetchProducts function
-const fetchProducts = async () => {
-  try {
-    setLoading(true);
-    console.log('🏠 Fetching products...');
-    
-    const response = await axios.get(`http://${window.location.hostname}:5000/api/products`);
-    console.log('📦 API response:', response.data);
-    
-    let productsArray = [];
-    
-    // Handle different response formats
-    if (Array.isArray(response.data)) {
-      productsArray = response.data;
-    } else if (response.data && response.data.products) {
-      productsArray = response.data.products;
-    } else if (response.data && response.data.data) {
-      productsArray = response.data.data;
-    } else {
-      console.error('Unexpected format:', response.data);
-      productsArray = [];
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      console.log('🏠 Fetching products...');
+
+      const apiUrl = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:5000/api`;
+      const response = await axios.get(`${apiUrl}/products`);
+      console.log('📦 API response:', response.data);
+
+      let productsArray = [];
+
+      // Handle different response formats
+      const data = response.data;
+      if (Array.isArray(data)) {
+        productsArray = data;
+      } else if (data && data.products) {
+        productsArray = data.products;
+      } else if (data && data.data) {
+        productsArray = data.data;
+      } else {
+        console.error('Unexpected format:', data);
+        productsArray = [];
+      }
+
+      console.log(`📊 Raw products from API: ${productsArray.length}`);
+
+      // 🚨 TEMPORARY: Ignore localStorage filter
+      const activeProducts = productsArray.filter(p =>
+        p.is_active !== 0 && p.is_active !== false
+      );
+
+      console.log(`✅ Active products after basic filter: ${activeProducts.length}`);
+
+      if (activeProducts.length > 0) {
+        console.log('🔍 First product:', activeProducts[0]);
+      }
+
+      // Set all products
+      setAllProducts(activeProducts);
+
+      // Process categories
+      setFeaturedProducts(activeProducts.slice(0, Math.min(8, activeProducts.length)));
+
+      // Face care = category_id = 1
+      const faceProducts = activeProducts.filter(p => p.category_id === 1);
+      setFaceCareProducts(faceProducts.slice(0, 4));
+
+      // Hair care = category_id = 2
+      const hairProducts = activeProducts.filter(p => p.category_id === 2);
+      setHairCareProducts(hairProducts.slice(0, 4));
+
+      // Body care = category_id = 3
+      const bodyProducts = activeProducts.filter(p => p.category_id === 3);
+      setBodyCareProducts(bodyProducts.slice(0, 4));
+
+      console.log('📊 Final counts:', {
+        all: activeProducts.length,
+        featured: activeProducts.slice(0, 8).length,
+        face: faceProducts.length,
+        hair: hairProducts.length,
+        body: bodyProducts.length
+      });
+
+    } catch (error) {
+      console.error('❌ Error fetching products:', error);
+      setAllProducts([]);
+      setFeaturedProducts([]);
+      setFaceCareProducts([]);
+      setHairCareProducts([]);
+      setBodyCareProducts([]);
+    } finally {
+      setLoading(false);
     }
-    
-    console.log(`📊 Raw products from API: ${productsArray.length}`);
-    
-    // 🚨 TEMPORARY: Ignore localStorage filter
-    const activeProducts = productsArray.filter(p => 
-      p.is_active !== 0 && p.is_active !== false
-    );
-    
-    console.log(`✅ Active products after basic filter: ${activeProducts.length}`);
-    
-    if (activeProducts.length > 0) {
-      console.log('🔍 First product:', activeProducts[0]);
-    }
-    
-    // Set all products
-    setAllProducts(activeProducts);
-    
-    // Process categories
-    setFeaturedProducts(activeProducts.slice(0, Math.min(8, activeProducts.length)));
-    
-    // Face care = category_id = 1
-    const faceProducts = activeProducts.filter(p => p.category_id === 1);
-    setFaceCareProducts(faceProducts.slice(0, 4));
-    
-    // Hair care = category_id = 2
-    const hairProducts = activeProducts.filter(p => p.category_id === 2);
-    setHairCareProducts(hairProducts.slice(0, 4));
-    
-    // Body care = category_id = 3
-    const bodyProducts = activeProducts.filter(p => p.category_id === 3);
-    setBodyCareProducts(bodyProducts.slice(0, 4));
-    
-    console.log('📊 Final counts:', {
-      all: activeProducts.length,
-      featured: activeProducts.slice(0, 8).length,
-      face: faceProducts.length,
-      hair: hairProducts.length,
-      body: bodyProducts.length
-    });
-    
-  } catch (error) {
-    console.error('❌ Error fetching products:', error);
-    setAllProducts([]);
-    setFeaturedProducts([]);
-    setFaceCareProducts([]);
-    setHairCareProducts([]);
-    setBodyCareProducts([]);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   useEffect(() => {
     fetchProducts();
-    
+
     // ✅ EVENT LISTENER
     const handleProductUpdate = () => {
       console.log('🔄 Refreshing products...');
       fetchProducts();
     };
-    
+
     window.addEventListener('productDeleted', handleProductUpdate);
     window.addEventListener('productUpdated', handleProductUpdate);
-    
+
     return () => {
       window.removeEventListener('productDeleted', handleProductUpdate);
       window.removeEventListener('productUpdated', handleProductUpdate);
@@ -130,7 +132,7 @@ const fetchProducts = async () => {
           <p className="text-gray-600 mb-8 max-w-md mx-auto">
             Products will appear here once added by admin.
           </p>
-          <button 
+          <button
             onClick={fetchProducts}
             className="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg flex items-center gap-2 mx-auto"
           >
@@ -167,19 +169,19 @@ const fetchProducts = async () => {
                 <span className="text-green-600 block">Beauty Care</span>
               </h1>
               <p className="text-xl text-gray-600 leading-relaxed">
-                Discover the power of nature with our certified organic skincare, 
+                Discover the power of nature with our certified organic skincare,
                 hair care, and body care products. Pure ingredients, visible results.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Link 
-                  to="/products" 
+                <Link
+                  to="/products"
                   className="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 text-center flex items-center justify-center gap-2"
                 >
                   <FaShoppingBag className="w-5 h-5" />
                   <span>Shop All Products</span>
                 </Link>
-                <Link 
-                  to="/products/face-care" 
+                <Link
+                  to="/products/face-care"
                   className="border-2 border-green-600 text-green-600 hover:bg-green-50 font-semibold py-4 px-8 rounded-lg text-lg transition-colors duration-200 text-center flex items-center justify-center gap-2"
                 >
                   <FaUserMd className="w-5 h-5" />
@@ -188,7 +190,7 @@ const fetchProducts = async () => {
               </div>
             </div>
             <div>
-              <img 
+              <img
                 src="/webbanner.png"
                 alt="Organic Beauty Products"
                 className="rounded-2xl shadow-2xl w-full h-[400px] object-cover"
@@ -248,8 +250,8 @@ const fetchProducts = async () => {
                 >
                   <FaSync className="w-5 h-5" />
                 </button>
-                <Link 
-                  to="/products" 
+                <Link
+                  to="/products"
                   className="text-green-600 hover:text-green-700 font-semibold text-lg flex items-center gap-2"
                 >
                   <span>View All</span>
@@ -278,8 +280,8 @@ const fetchProducts = async () => {
                 </h2>
                 <p className="text-gray-600">{faceCareProducts.length} organic skincare products</p>
               </div>
-              <Link 
-                to="/products/face-care" 
+              <Link
+                to="/products/face-care"
                 className="text-green-600 hover:text-green-700 font-semibold text-lg flex items-center gap-2"
               >
                 <span>View All</span>
@@ -307,8 +309,8 @@ const fetchProducts = async () => {
                 </h2>
                 <p className="text-gray-600">{hairCareProducts.length} natural hair solutions</p>
               </div>
-              <Link 
-                to="/products/hair-care" 
+              <Link
+                to="/products/hair-care"
                 className="text-green-600 hover:text-green-700 font-semibold text-lg flex items-center gap-2"
               >
                 <span>View All</span>
@@ -336,8 +338,8 @@ const fetchProducts = async () => {
                 </h2>
                 <p className="text-gray-600">{bodyCareProducts.length} nourishing body products</p>
               </div>
-              <Link 
-                to="/products/body-care" 
+              <Link
+                to="/products/body-care"
                 className="text-green-600 hover:text-green-700 font-semibold text-lg flex items-center gap-2"
               >
                 <span>View All</span>

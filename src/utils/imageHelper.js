@@ -2,7 +2,9 @@
  * Helper functions for handling product images
  */
 
-const BACKEND_URL = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:5000`;
+const BACKEND_URL = process.env.REACT_APP_API_URL
+  ? process.env.REACT_APP_API_URL.replace('/api', '')
+  : `http://${window.location.hostname}:5000`;
 
 /**
  * Convert image path to full URL
