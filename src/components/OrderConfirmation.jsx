@@ -60,12 +60,12 @@ const OrderConfirmation = () => {
     
     // Fix for /uploads/ paths
     if (imagePath.startsWith('/uploads/')) {
-      return `http://${window.location.hostname}:5000${imagePath}`;
+      return `https://shopping-backend-jggd.onrender.com${imagePath}`;
     }
     
     // Fix for filename only
     if (imagePath && !imagePath.includes('/') && !imagePath.startsWith('http')) {
-      return `http://${window.location.hostname}:5000/uploads/${imagePath}`;
+      return `https://shopping-backend-jggd.onrender.com/uploads/${imagePath}`;
     }
     
     // Already full URL

@@ -304,7 +304,7 @@ const Invoice = ({ order, onClose }) => {
                        className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-gray-100 last:border-0 hover:bg-green-50/30 transition-colors">
                     <div className="col-span-6 flex items-center gap-3">
                       <img 
-                        src={item.image?.startsWith('/uploads/') ? `http://${window.location.hostname}:5000${item.image}` : item.image || 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100&h=100&fit=crop'} 
+                        src={item.image?.startsWith('/uploads/') ? `https://shopping-backend-jggd.onrender.com${item.image}` : item.image || 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100&h=100&fit=crop'} 
                         alt={item.product_name}
                         className="w-12 h-12 object-cover rounded-lg"
                       />

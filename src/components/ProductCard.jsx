@@ -92,9 +92,13 @@ const ProductCard = ({ product, layout = 'grid' }) => {
       return img;
     }
 
+    const BACKEND_URL = process.env.REACT_APP_API_URL 
+      ? process.env.REACT_APP_API_URL.replace('/api', '') 
+      : 'https://shopping-backend-jggd.onrender.com';
+
     // Case 2: Local upload with /uploads/ prefix
     if (img.startsWith('/uploads/')) {
-      return `http://${window.location.hostname}:5000${img}`;
+      return `${BACKEND_URL}${img}`;
     }
 
     // Case 3: Just a filename
@@ -105,9 +109,9 @@ const ProductCard = ({ product, layout = 'grid' }) => {
         const cleanPath = img.replace(/\\/g, '/');
         // Ensure it starts with /
         const finalPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-        return `http://${window.location.hostname}:5000${finalPath}`;
+        return `${BACKEND_URL}${finalPath}`;
       } else {
-        return `http://${window.location.hostname}:5000/uploads/${img}`;
+        return `${BACKEND_URL}/uploads/${img}`;
       }
     }
 

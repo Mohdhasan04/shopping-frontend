@@ -131,11 +131,11 @@ const OrderTracking = () => {
     if (!imagePath) return 'https://via.placeholder.com/100x100';
     
     if (imagePath.startsWith('/uploads/')) {
-      return `http://${window.location.hostname}:5000${imagePath}`;
+      return `https://shopping-backend-jggd.onrender.com${imagePath}`;
     }
     
     if (imagePath && !imagePath.includes('/') && !imagePath.startsWith('http')) {
-      return `http://${window.location.hostname}:5000/uploads/${imagePath}`;
+      return `https://shopping-backend-jggd.onrender.com/uploads/${imagePath}`;
     }
     
     if (imagePath.startsWith('http')) {

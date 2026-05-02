@@ -34,12 +34,12 @@ const OrderItemTracking = () => {
     
     // Fix 1: If image starts with /uploads/
     if (imagePath.startsWith('/uploads/')) {
-      return `http://${window.location.hostname}:5000${imagePath}`;
+      return `https://shopping-backend-jggd.onrender.com${imagePath}`;
     }
     
     // Fix 2: If image is just filename without path
     if (imagePath && !imagePath.includes('/') && !imagePath.startsWith('http')) {
-      return `http://${window.location.hostname}:5000/uploads/${imagePath}`;
+      return `https://shopping-backend-jggd.onrender.com/uploads/${imagePath}`;
     }
     
     // Fix 3: If already full URL

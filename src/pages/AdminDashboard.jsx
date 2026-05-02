@@ -1322,7 +1322,7 @@ const DashboardTab = ({ stats, dateRange, onDateRangeChange, onRefresh }) => {
                   <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-200 flex items-center justify-center">
                     {product.image ? (
                       <img
-                        src={product.image.startsWith('/uploads') ? `http://${window.location.hostname}:5000${product.image}` : product.image}
+                        src={product.image.startsWith('/uploads') ? `https://shopping-backend-jggd.onrender.com${product.image}` : product.image}
                         alt={product.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -1692,7 +1692,7 @@ const StockReportTab = ({ reports, onRefresh }) => {
                           {product.image && (
                             <img
                               src={product.image.startsWith('/uploads')
-                                ? `http://${window.location.hostname}:5000${product.image}`
+                                ? `https://shopping-backend-jggd.onrender.com${product.image}`
                                 : product.image}
                               alt={product.name}
                               className="w-full h-full object-cover"
@@ -3068,14 +3068,14 @@ const ProductsTab = ({ products: initialProducts, onDelete, onRefresh }) => {
 
     if (product.image) {
       return product.image.startsWith('/uploads')
-        ? `http://${window.location.hostname}:5000${product.image}`
+        ? `https://shopping-backend-jggd.onrender.com${product.image}`
         : product.image;
     }
 
     if (product.images && product.images.length > 0) {
       const firstImg = product.images[0];
       return firstImg.startsWith('/uploads')
-        ? `http://${window.location.hostname}:5000${firstImg}`
+        ? `https://shopping-backend-jggd.onrender.com${firstImg}`
         : firstImg;
     }
 
@@ -3246,7 +3246,7 @@ const ProductsTab = ({ products: initialProducts, onDelete, onRefresh }) => {
                   <div className="mt-3">
                     <p className="text-sm text-gray-600 mb-2">Preview:</p>
                     <img
-                      src={formData.image.startsWith('/uploads') ? `http://${window.location.hostname}:5000${formData.image}` : formData.image}
+                      src={formData.image.startsWith('/uploads') ? `https://shopping-backend-jggd.onrender.com${formData.image}` : formData.image}
                       alt="Preview"
                       className="w-24 h-24 object-cover rounded-lg border"
                       onError={(e) => e.target.src = 'https://via.placeholder.com/96x96'}
@@ -3422,7 +3422,7 @@ const ProductsTab = ({ products: initialProducts, onDelete, onRefresh }) => {
                 viewingImages.images.map((img, idx) => (
                   <div key={idx} className="relative group">
                     <img
-                      src={img.startsWith('/uploads') ? `http://${window.location.hostname}:5000${img}` : img}
+                      src={img.startsWith('/uploads') ? `https://shopping-backend-jggd.onrender.com${img}` : img}
                       alt={`${viewingImages.name} ${idx + 1}`}
                       className="w-full h-48 object-cover rounded-lg border-2 border-gray-200 group-hover:border-primary-300 transition-colors duration-200"
                       onError={(e) => e.target.src = 'https://via.placeholder.com/300x300'}
@@ -3835,7 +3835,7 @@ const OrdersTab = ({ orders, onStatusUpdate }) => {
                           {item.product_image ? (
                             <img
                               src={item.product_image.startsWith('/uploads')
-                                ? `http://${window.location.hostname}:5000${item.product_image}`
+                                ? `https://shopping-backend-jggd.onrender.com${item.product_image}`
                                 : item.product_image}
                               alt={item.product_name}
                               className="w-full h-full object-cover"
