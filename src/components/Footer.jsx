@@ -132,12 +132,12 @@ const Footer = () => {
                   <span>Shipping Info</span>
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/returns" className="flex items-center gap-2 text-gray-300 hover:text-emerald-400 transition-colors group">
                   <FaRecycle className="w-4 h-4 text-gray-500" />
                   <span>Return Policy</span>
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link to="/privacy" className="flex items-center gap-2 text-gray-300 hover:text-emerald-400 transition-colors group">
                   <FaShieldAlt className="w-4 h-4 text-gray-500" />
@@ -205,13 +205,13 @@ const Footer = () => {
               <p className="text-sm text-gray-400">On orders over ₹299</p>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          {/* <div className="flex items-center gap-3">
             <FaRecycle className="w-8 h-8 text-emerald-400" />
             <div>
               <p className="font-semibold">Easy Returns</p>
               <p className="text-sm text-gray-400">30-day return policy</p>
             </div>
-          </div>
+          </div> */}
           <div className="flex items-center gap-3">
             <FaShieldAlt className="w-8 h-8 text-emerald-400" />
             <div>
