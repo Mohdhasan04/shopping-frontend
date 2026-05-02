@@ -23,6 +23,7 @@ import {
   FaCamera,
   FaTimes,
   FaCheckCircle,
+  FaArrowRight,
   FaTruck,
   FaShippingFast,
   FaBoxOpen,
@@ -547,6 +548,7 @@ const AdminDashboard = () => {
       }
     } catch (error) {
       console.error('❌ Fetch orders error:', error);
+      toast.error('Failed to fetch orders from server');
     }
   };
 
@@ -825,6 +827,7 @@ const AdminDashboard = () => {
                   dateRange={dateRange}
                   onDateRangeChange={handleDateRangeChange}
                   onRefresh={fetchDashboardData}
+                  onTabChange={setActiveTab}
                 />
               )}
               {activeTab === 'stock' && (
@@ -876,7 +879,7 @@ const AdminDashboard = () => {
 // ✅ DASHBOARD TAB Component - Fixed with Custom Date Range
 // ✅ FIXED DASHBOARDTAB COMPONENT ONLY (Replace the existing DashboardTab)
 
-const DashboardTab = ({ stats, dateRange, onDateRangeChange, onRefresh }) => {
+const DashboardTab = ({ stats, dateRange, onDateRangeChange, onRefresh, onTabChange }) => {
   const [showCustomRange, setShowCustomRange] = useState(false);
   const [customDates, setCustomDates] = useState({
     startDate: '',
@@ -1319,6 +1322,66 @@ const DashboardTab = ({ stats, dateRange, onDateRangeChange, onRefresh }) => {
           </div>
         </div>
       )}
+
+      {/* ✅ NEW: Recent Orders Section for Dashboard */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 mb-8">
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-xl font-bold text-gray-800 flex items-center space-x-3">
+            <div className="p-2 bg-blue-100 rounded-lg">
+              <FaShoppingBag className="w-5 h-5 text-blue-600" />
+            </div>
+            <span>Recent Orders</span>
+          </h3>
+          <button 
+            onClick={() => onTabChange('orders')}
+            className="text-primary-600 font-semibold hover:underline flex items-center space-x-1"
+          >
+            <span>View All</span>
+            <FaArrowRight className="w-3 h-3" />
+          </button>
+        </div>
+
+        {stats?.recent_orders && stats.recent_orders.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left text-sm text-gray-500 border-b border-gray-100">
+                  <th className="pb-4 font-medium">Order ID</th>
+                  <th className="pb-4 font-medium">Customer</th>
+                  <th className="pb-4 font-medium">Amount</th>
+                  <th className="pb-4 font-medium">Status</th>
+                  <th className="pb-4 font-medium">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {stats.recent_orders.slice(0, 5).map((order) => (
+                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 font-mono text-sm font-semibold text-gray-700">#{order.id}</td>
+                    <td className="py-4 text-gray-800 font-medium">{order.customer_name}</td>
+                    <td className="py-4 font-bold text-gray-900">{formatCurrency(order.total_amount)}</td>
+                    <td className="py-4">
+                      <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
+                        order.order_status === 'delivered' ? 'bg-green-100 text-green-700' :
+                        order.order_status === 'cancelled' ? 'bg-red-100 text-red-700' :
+                        order.order_status === 'shipped' ? 'bg-blue-100 text-blue-700' :
+                        'bg-yellow-100 text-yellow-700'
+                      }`}>
+                        {order.order_status}
+                      </span>
+                    </td>
+                    <td className="py-4 text-sm text-gray-500">{new Date(order.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-10 bg-gray-50 rounded-xl">
+            <FaShoppingBag className="w-10 h-10 text-gray-300 mx-auto mb-3" />
+            <p className="text-gray-500">No recent orders found</p>
+          </div>
+        )}
+      </div>
 
       {/* Data Source Footer */}
       <div className="mt-6 pt-6 border-t border-gray-200">
@@ -3583,6 +3646,7 @@ const ProductsTab = ({ products: initialProducts, onDelete, onRefresh }) => {
 
 // ✅ OrdersTab Component
 const OrdersTab = ({ orders, onStatusUpdate }) => {
+  console.log('📦 OrdersTab rendered with:', orders?.length, 'orders');
   const statusColors = {
     pending: 'bg-gradient-to-r from-yellow-100 to-amber-100 text-yellow-800',
     confirmed: 'bg-gradient-to-r from-blue-100 to-cyan-100 text-blue-800',
