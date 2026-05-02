@@ -4,7 +4,7 @@
 
 const BACKEND_URL = process.env.REACT_APP_API_URL
   ? process.env.REACT_APP_API_URL.replace('/api', '')
-  : `http://${window.location.hostname}:5000`;
+  : 'https://shopping-backend-jggd.onrender.com';
 
 /**
  * Convert image path to full URL
