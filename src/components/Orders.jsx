@@ -300,7 +300,7 @@ const Orders = () => {
     if (!img) return 'https://images.unsplash.com/photo-1556228578-8c89e-6adf883?w=100&h=100&fit=crop';
 
     // Hardcode local backend for stability
-    const baseUrl = 'http://localhost:5000';
+    const baseUrl = 'https://shopping-backend-jggd.onrender.com';
 
     if (img.startsWith('http')) return img;
 

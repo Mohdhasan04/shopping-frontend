@@ -19,7 +19,7 @@ const Cart = () => {
   const getFullImageUrl = (img) => {
     if (!img) return 'https://via.placeholder.com/200x200/cccccc/969696?text=No+Image';
 
-    const baseUrl = 'http://localhost:5000';
+    const baseUrl = 'https://shopping-backend-jggd.onrender.com';
 
     if (img.startsWith('http')) return img;
 

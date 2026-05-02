@@ -60,7 +60,8 @@ const Products = () => {
     const fetchAllProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`http://localhost:5000/api/products`);
+        const backendUrl = process.env.REACT_APP_API_URL || 'https://shopping-backend-jggd.onrender.com/api';
+        const response = await fetch(`${backendUrl}/products`);
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 

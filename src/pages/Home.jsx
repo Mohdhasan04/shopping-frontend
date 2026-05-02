@@ -25,7 +25,7 @@ const Home = () => {
       setLoading(true);
       console.log('🏠 Fetching products...');
 
-      const response = await fetch(`http://localhost:5000/api/products`);
+      const response = await fetch(`https://shopping-backend-jggd.onrender.com/api/products`);
       const data = await response.json(); // Assuming the response is JSON
       console.log('📦 API response:', data);
 
