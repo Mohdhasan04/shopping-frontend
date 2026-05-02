@@ -338,62 +338,62 @@ const Orders = () => {
           </div>
         </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Total Orders</p>
-                  <p className="text-2xl font-bold text-gray-800">{orders.length}</p>
-                </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <FaBox className="w-6 h-6 text-green-600" />
-                </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Total Orders</p>
+                <p className="text-2xl font-bold text-gray-800">{orders.length}</p>
               </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Delivered</p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {orders.filter(o => o.order_status === 'delivered').length}
-                  </p>
-                </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <FaCheckCircle className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">In Transit</p>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {orders.filter(o => o.order_status === 'shipped').length}
-                  </p>
-                </div>
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <FaTruck className="w-6 h-6 text-blue-600" />
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">
-                    {orders.filter(o => o.order_status === 'pending' || o.order_status === 'confirmed').length}
-                  </p>
-                </div>
-                <div className="p-3 bg-yellow-50 rounded-lg">
-                  <FaClock className="w-6 h-6 text-yellow-600" />
-                </div>
+              <div className="p-3 bg-green-50 rounded-lg">
+                <FaBox className="w-6 h-6 text-green-600" />
               </div>
             </div>
           </div>
-        )}
+
+          <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Delivered</p>
+                <p className="text-2xl font-bold text-green-600">
+                  {orders.filter(o => o.order_status === 'delivered').length}
+                </p>
+              </div>
+              <div className="p-3 bg-green-50 rounded-lg">
+                <FaCheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">In Transit</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  {orders.filter(o => o.order_status === 'shipped').length}
+                </p>
+              </div>
+              <div className="p-3 bg-blue-50 rounded-lg">
+                <FaTruck className="w-6 h-6 text-blue-600" />
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Pending</p>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {orders.filter(o => o.order_status === 'pending' || o.order_status === 'confirmed').length}
+                </p>
+              </div>
+              <div className="p-3 bg-yellow-50 rounded-lg">
+                <FaClock className="w-6 h-6 text-yellow-600" />
+              </div>
+            </div>
+          </div>
+        </div>
+
 
         {orders.length === 0 ? (
           <div className="text-center py-16 bg-white rounded-2xl shadow-lg border border-gray-100">
