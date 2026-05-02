@@ -16,28 +16,24 @@ const Cart = () => {
   const { user } = useAuth();
 
   // ✅ FIXED: Function to get correct image URL
-  const getImageUrl = (imagePath) => {
-    if (!imagePath || imagePath === '') {
-      return 'https://via.placeholder.com/96x96/cccccc/969696?text=No+Image';
+  const getFullImageUrl = (img) => {
+    if (!img) return 'https://via.placeholder.com/200x200/cccccc/969696?text=No+Image';
+
+    const baseUrl = 'http://localhost:5000';
+
+    if (img.startsWith('http')) return img;
+
+    if (img.startsWith('/uploads/')) {
+      return `${baseUrl}${img}`;
     }
 
-    // Check if it's a local uploads path
-    if (imagePath.startsWith('/uploads') || imagePath.startsWith('uploads/')) {
-      return `http://${window.location.hostname}:5000${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+    if (img.includes('uploads')) {
+      const cleanPath = img.replace(/\\/g, '/');
+      const finalPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+      return `${baseUrl}${finalPath}`;
     }
 
-    // Check if it's already a full URL
-    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-      return imagePath;
-    }
-
-    // For placeholder URLs
-    if (imagePath.includes('via.placeholder.com') || imagePath.includes('unsplash.com')) {
-      return imagePath;
-    }
-
-    // Default: assume it's a relative path
-    return `http://${window.location.hostname}:5000/uploads/${imagePath}`;
+    return `${baseUrl}/uploads/${img}`;
   };
 
   // Calculate cart count manually
@@ -133,7 +129,7 @@ const Cart = () => {
             <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
               {cartItems.map((item) => {
                 // ✅ FIXED: Get the correct image URL
-                const imageUrl = getImageUrl(item.image || item.image_url || item.product_image);
+                const imageUrl = getFullImageUrl(item.image || item.image_url || item.product_image);
 
                 return (
                   <div key={item.cartItemId || item.id} className="border-b border-gray-100 last:border-b-0 hover:bg-gray-50/50 transition-colors duration-200">

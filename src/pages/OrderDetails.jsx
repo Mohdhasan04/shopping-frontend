@@ -355,12 +355,25 @@ const OrderDetails = () => {
   };
 
 
-  const getImageUrl = (imagePath) => {
-    if (!imagePath) return 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100&h=100&fit=crop';
-    if (imagePath.startsWith('/uploads/')) {
-      return `http://${window.location.hostname}:5000${imagePath}`;
+  const getImageUrl = (img) => {
+    if (!img) return 'https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=100&h=100&fit=crop';
+
+    // Hardcode local backend for stability
+    const baseUrl = 'http://localhost:5000';
+
+    if (img.startsWith('http')) return img;
+
+    if (img.startsWith('/uploads/')) {
+      return `${baseUrl}${img}`;
     }
-    return imagePath;
+
+    if (img.includes('uploads')) {
+      const cleanPath = img.replace(/\\/g, '/');
+      const finalPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+      return `${baseUrl}${finalPath}`;
+    }
+
+    return `${baseUrl}/uploads/${img}`;
   };
 
   // Calculate item total correctly

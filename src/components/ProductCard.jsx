@@ -92,11 +92,9 @@ const ProductCard = ({ product, layout = 'grid' }) => {
       return img;
     }
 
-    const BACKEND_BASE = process.env.REACT_APP_API_URL?.replace('/api', '') || `http://${window.location.hostname}:5000`;
-
     // Case 2: Local upload with /uploads/ prefix
     if (img.startsWith('/uploads/')) {
-      return `${BACKEND_BASE}${img}`;
+      return `http://${window.location.hostname}:5000${img}`;
     }
 
     // Case 3: Just a filename
@@ -107,9 +105,9 @@ const ProductCard = ({ product, layout = 'grid' }) => {
         const cleanPath = img.replace(/\\/g, '/');
         // Ensure it starts with /
         const finalPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
-        return `${BACKEND_BASE}${finalPath}`;
+        return `http://${window.location.hostname}:5000${finalPath}`;
       } else {
-        return `${BACKEND_BASE}/uploads/${img}`;
+        return `http://${window.location.hostname}:5000/uploads/${img}`;
       }
     }
 
@@ -397,8 +395,8 @@ const ProductCard = ({ product, layout = 'grid' }) => {
                     onClick={handleAddToCart}
                     disabled={isOutOfStock}
                     className={`flex-1 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${isOutOfStock
-                        ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                        : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:shadow-lg hover:shadow-primary-200'
+                      ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-primary-600 to-primary-500 text-white hover:shadow-lg hover:shadow-primary-200'
                       }`}
                   >
                     {isOutOfStock ? (
@@ -539,8 +537,8 @@ const ProductCard = ({ product, layout = 'grid' }) => {
               onClick={handleAddToCart}
               disabled={isOutOfStock}
               className={`w-full py-3 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${isOutOfStock
-                  ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                  : 'bg-white text-gray-900 hover:bg-primary-600 hover:text-white shadow-lg'
+                ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
+                : 'bg-white text-gray-900 hover:bg-primary-600 hover:text-white shadow-lg'
                 }`}
             >
               {isOutOfStock ? (
@@ -635,8 +633,8 @@ const ProductCard = ({ product, layout = 'grid' }) => {
             onClick={handleAddToCart}
             disabled={isOutOfStock}
             className={`p-3 rounded-xl transition-all duration-300 ${isOutOfStock
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-gradient-to-r from-primary-50 to-primary-100 text-primary-600 hover:bg-primary-200'
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'bg-gradient-to-r from-primary-50 to-primary-100 text-primary-600 hover:bg-primary-200'
               }`}
           >
             <FiShoppingCart className="w-5 h-5" />

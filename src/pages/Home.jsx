@@ -25,14 +25,13 @@ const Home = () => {
       setLoading(true);
       console.log('🏠 Fetching products...');
 
-      const apiUrl = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:5000/api`;
-      const response = await axios.get(`${apiUrl}/products`);
-      console.log('📦 API response:', response.data);
+      const response = await fetch(`http://localhost:5000/api/products`);
+      const data = await response.json(); // Assuming the response is JSON
+      console.log('📦 API response:', data);
 
       let productsArray = [];
 
       // Handle different response formats
-      const data = response.data;
       if (Array.isArray(data)) {
         productsArray = data;
       } else if (data && data.products) {
@@ -44,14 +43,14 @@ const Home = () => {
         productsArray = [];
       }
 
-      console.log(`📊 Raw products from API: ${productsArray.length}`);
+      console.log(`📊 Raw products from API: ${productsArray.length} `);
 
       // 🚨 TEMPORARY: Ignore localStorage filter
       const activeProducts = productsArray.filter(p =>
         p.is_active !== 0 && p.is_active !== false
       );
 
-      console.log(`✅ Active products after basic filter: ${activeProducts.length}`);
+      console.log(`✅ Active products after basic filter: ${activeProducts.length} `);
 
       if (activeProducts.length > 0) {
         console.log('🔍 First product:', activeProducts[0]);

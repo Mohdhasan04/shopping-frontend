@@ -75,25 +75,24 @@ const Checkout = () => {
       images: item.images
     });
 
-    const getFullImageUrl = (imagePath) => {
-      if (!imagePath || imagePath === '') {
-        return 'https://via.placeholder.com/200x200/cccccc/969696?text=No+Image';
+    const getFullImageUrl = (img) => {
+      if (!img) return 'https://via.placeholder.com/200x200/cccccc/969696?text=No+Image';
+
+      const baseUrl = 'http://localhost:5000';
+
+      if (img.startsWith('http')) return img;
+
+      if (img.startsWith('/uploads/')) {
+        return `${baseUrl}${img}`;
       }
 
-      if (imagePath.startsWith('/uploads') || imagePath.startsWith('uploads/')) {
-        const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-        return `http://${window.location.hostname}:5000${cleanPath}`;
+      if (img.includes('uploads')) {
+        const cleanPath = img.replace(/\\/g, '/');
+        const finalPath = cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`;
+        return `${baseUrl}${finalPath}`;
       }
 
-      if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-        return imagePath;
-      }
-
-      if (imagePath.includes('via.placeholder.com') || imagePath.includes('unsplash.com')) {
-        return imagePath;
-      }
-
-      return `http://${window.location.hostname}:5000/uploads/${imagePath}`;
+      return `${baseUrl}/uploads/${img}`;
     };
 
     if (item.image && typeof item.image === 'string') {
@@ -516,10 +515,10 @@ const Checkout = () => {
                         className="form-input w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                       >
                         <option value="India">India</option>
-                        <option value="United States">United States</option>
+                        {/* <option value="United States">United States</option>
                         <option value="Canada">Canada</option>
                         <option value="United Kingdom">United Kingdom</option>
-                        <option value="Australia">Australia</option>
+                        <option value="Australia">Australia</option> */}
                       </select>
                     </div>
                   </div>
@@ -607,7 +606,7 @@ const Checkout = () => {
                   )}
 
                   {/* Credit/Debit Card */}
-                  <label className={`flex items-center space-x-4 p-4 border rounded-lg cursor-pointer transition-all duration-200 ${formData.paymentMethod === 'card' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'}`}>
+                  {/* <label className={`flex items-center space-x-4 p-4 border rounded-lg cursor-pointer transition-all duration-200 ${formData.paymentMethod === 'card' ? 'border-purple-500 bg-purple-50' : 'border-gray-200 hover:border-purple-300 hover:bg-purple-50'}`}>
                     <input
                       type="radio"
                       name="paymentMethod"
@@ -621,10 +620,10 @@ const Checkout = () => {
                       <p className="font-medium text-gray-800">Credit/Debit Card</p>
                       <p className="text-sm text-gray-600">Secure card payment</p>
                     </div>
-                  </label>
+                  </label> */}
 
                   {/* PayPal */}
-                  <label className={`flex items-center space-x-4 p-4 border rounded-lg cursor-pointer transition-all duration-200 ${formData.paymentMethod === 'paypal' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'}`}>
+                  {/* <label className={`flex items-center space-x-4 p-4 border rounded-lg cursor-pointer transition-all duration-200 ${formData.paymentMethod === 'paypal' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'}`}>
                     <input
                       type="radio"
                       name="paymentMethod"
@@ -638,7 +637,7 @@ const Checkout = () => {
                       <p className="font-medium text-gray-800">PayPal</p>
                       <p className="text-sm text-gray-600">Fast and secure online payment</p>
                     </div>
-                  </label>
+                  </label> */}
                 </div>
               </div>
 
@@ -664,8 +663,8 @@ const Checkout = () => {
                 type="submit"
                 disabled={loading || !canCheckout}
                 className={`w-full py-4 text-lg font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-3 ${canCheckout
-                    ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:shadow-xl hover:scale-[1.02]'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white hover:shadow-xl hover:scale-[1.02]'
+                  : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                   }`}
               >
                 {loading ? (

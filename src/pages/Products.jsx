@@ -60,18 +60,15 @@ const Products = () => {
     const fetchAllProducts = async () => {
       try {
         setLoading(true);
-        const apiUrl = process.env.REACT_APP_API_URL || `http://${window.location.hostname}:5000/api`;
-        const response = await fetch(`${apiUrl}/products`);
+        const response = await fetch(`http://localhost:5000/api/products`);
 
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
         const data = await response.json();
         const productsList = data.products || data || [];
 
-        // Add sample data if empty (for demo)
         if (productsList.length === 0) {
-          const sampleProducts = generateSampleProducts();
-          setAllProducts(sampleProducts);
+          setAllProducts([]);
         } else {
           setAllProducts(productsList);
         }
@@ -80,8 +77,7 @@ const Products = () => {
       } catch (error) {
         console.error('Error fetching products:', error);
         setHasError(true);
-        toast.error('Failed to load products. Showing demo data.');
-        setAllProducts(generateSampleProducts());
+        setAllProducts([]);
       } finally {
         setLoading(false);
       }
@@ -531,8 +527,8 @@ const Products = () => {
                                 key={pageNum}
                                 onClick={() => handlePageChange(pageNum)}
                                 className={`w-10 h-10 rounded-xl font-medium transition-colors ${filters.page === pageNum
-                                    ? 'bg-primary-500 text-white'
-                                    : 'text-gray-700 hover:bg-gray-100'
+                                  ? 'bg-primary-500 text-white'
+                                  : 'text-gray-700 hover:bg-gray-100'
                                   }`}
                               >
                                 {pageNum}
@@ -630,8 +626,8 @@ const FilterSidebar = ({ filters, allProducts, onFilterChange, onClearFilters, t
                 key={cat.value}
                 onClick={() => onFilterChange({ category: cat.value })}
                 className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${filters.category === cat.value
-                    ? 'bg-primary-50 text-primary-700 border border-primary-200'
-                    : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-primary-50 text-primary-700 border border-primary-200'
+                  : 'text-gray-700 hover:bg-gray-50'
                   }`}
               >
                 <div className="flex items-center space-x-3">
@@ -659,8 +655,8 @@ const FilterSidebar = ({ filters, allProducts, onFilterChange, onClearFilters, t
                   maxPrice: range.max
                 })}
                 className={`flex items-center justify-between w-full p-3 rounded-xl transition-all ${Number(filters.minPrice) === range.min && Number(filters.maxPrice) === range.max
-                    ? 'bg-primary-50 text-primary-700 border border-primary-200'
-                    : 'text-gray-700 hover:bg-gray-50'
+                  ? 'bg-primary-50 text-primary-700 border border-primary-200'
+                  : 'text-gray-700 hover:bg-gray-50'
                   }`}
               >
                 <span>{range.label}</span>
