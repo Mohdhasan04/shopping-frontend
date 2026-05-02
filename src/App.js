@@ -24,6 +24,7 @@ import Wishlist from './pages/Wishlist';
 import Profile from './pages/Profile';
 import OrderDetails from './pages/OrderDetails';
 import InvoicePage from './pages/InvoicePage';
+import ScrollToTop from './components/ScrollToTop';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
                 }}
               >
                 <div className="App min-h-screen bg-white flex flex-col">
+                  <ScrollToTop />
                   <Header />
                   
                   {/* ✅ MOBILE FIX: MAIN CONTENT AREA */}

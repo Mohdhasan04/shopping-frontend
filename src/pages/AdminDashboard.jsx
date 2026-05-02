@@ -111,6 +111,7 @@ const AdminDashboard = () => {
   // ✅ Fetch data when tab changes
   useEffect(() => {
     if (user?.role === 'admin') {
+      window.scrollTo(0, 0);
       fetchDataForActiveTab();
     }
   }, [user, activeTab, dateRange.period]);
