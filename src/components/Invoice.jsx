@@ -408,7 +408,6 @@ const Invoice = ({ order, onClose }) => {
                   <li>Payment is due within 15 days</li>
                   <li>Please include invoice number with payment</li>
                   <li>All amounts are in Indian Rupees (₹)</li>
-                  <li>No returns after 7 days of delivery</li>
                   <li>Free shipping on orders above ₹299</li>
                 </ul>
               </div>

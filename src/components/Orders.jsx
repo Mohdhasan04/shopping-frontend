@@ -658,7 +658,7 @@ const Orders = () => {
                   Need Help With Your Order?
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  Have questions about your order status, delivery, or returns?
+                  Have questions about your order status or delivery?
                   Our customer support team is here to help you.
                 </p>
                 <div className="flex flex-wrap gap-4">

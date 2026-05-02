@@ -42,13 +42,7 @@ const OrderDetails = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [itemsSubtotal, setItemsSubtotal] = useState(0);
-  const [showReturnModal, setShowReturnModal] = useState(false);
-  const [returnType, setReturnType] = useState('return');
-  const [selectedItemsForReturn, setSelectedItemsForReturn] = useState([]);
-  const [returnDescription, setReturnDescription] = useState('');
-  const [submittingReturn, setSubmittingReturn] = useState(false);
   const [returnSubmitted, setReturnSubmitted] = useState(false);
-  const [returnInfo, setReturnInfo] = useState(null); // DB return status
 
   useEffect(() => {
     fetchOrderDetails();
@@ -105,9 +99,6 @@ const OrderDetails = () => {
 
       if (response.data.success) {
         setOrder(response.data.order);
-        // Always fetch return status - the function handles both auth and guest
-        const email = query.get('email') || localStorage.getItem('customer_email');
-        fetchReturnStatus(email);
 
         // Log item prices for debugging
         if (response.data.order?.items) {
@@ -139,46 +130,7 @@ const OrderDetails = () => {
     }
   };
 
-  const fetchReturnStatus = async (email) => {
-    try {
-      const token = localStorage.getItem('token');
 
-      // If user is logged in, use authenticated endpoint (handles both user_id and email)
-      if (token && token !== 'undefined' && token !== 'null') {
-        try {
-          const response = await api.get(`/returns/my-order/${orderId}`);
-          if (response.data.success) {
-            if (response.data.return) {
-              setReturnInfo(response.data.return);
-              setReturnSubmitted(true);
-            } else {
-              setReturnInfo(null);
-              setReturnSubmitted(false);
-            }
-            return; // Done - no need for email fallback
-          }
-        } catch (authErr) {
-          // If auth endpoint fails (e.g. 404 order not found), fall through to email
-          console.log('Auth return fetch failed, trying email fallback...');
-        }
-      }
-
-      // Fallback: email-based (for guest users)
-      if (email) {
-        const response = await api.get(`/returns/order/${orderId}?email=${encodeURIComponent(email)}`);
-        if (response.data.success && response.data.return) {
-          setReturnInfo(response.data.return);
-          setReturnSubmitted(true);
-        } else {
-          setReturnInfo(null);
-          setReturnSubmitted(false);
-        }
-      }
-    } catch (err) {
-      // No return found - that's fine
-      setReturnInfo(null);
-    }
-  };
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -313,43 +265,10 @@ const OrderDetails = () => {
     const mappedSteps = steps.map((step, index) => ({
       ...step,
       completed: index <= currentIndex,
-      current: index === currentIndex && !returnSubmitted,
+      current: index === currentIndex,
     }));
 
-    // Add Return step if return exists in DB or was just submitted
-    if (returnSubmitted || returnInfo) {
-      const info = returnInfo;
-      const statusLabel = {
-        requested: 'Return Requested',
-        approved: 'Return Approved',
-        rejected: 'Return Rejected',
-        processing: 'Return Processing',
-        completed: 'Return Completed',
-        cancelled: 'Return Cancelled',
-      }[info?.status || 'requested'] || 'Return Requested';
 
-      const statusDesc = {
-        requested: 'Your return/exchange request has been submitted and is being reviewed',
-        approved: 'Your return has been approved! Please ship the item back',
-        rejected: 'Your return request was rejected. Check admin notes for details',
-        processing: 'Your return is being processed',
-        completed: 'Return completed! Refund has been initiated',
-        cancelled: 'Return request was cancelled',
-      }[info?.status || 'requested'] || 'Return request submitted';
-
-      mappedSteps.push({
-        id: 5,
-        status: info?.status || 'requested',
-        label: statusLabel,
-        description: statusDesc,
-        adminNotes: info?.admin_notes,
-        refundAmount: info?.refund_amount,
-        returnType: info?.type,
-        completed: ['approved', 'processing', 'completed'].includes(info?.status),
-        current: true,
-        isReturn: true,
-      });
-    }
 
     return mappedSteps;
   };
@@ -409,73 +328,7 @@ const OrderDetails = () => {
     // Implement add to cart logic here
   };
 
-  const requestReturn = () => {
-    // Open return modal
-    setSelectedItemsForReturn(order.items.map(item => ({
-      order_item_id: item.id,
-      product_id: item.product_id,
-      product_name: item.product_name,
-      quantity: item.quantity,
-      selected: false,
-      reason: 'wrong_item'
-    })));
-    setShowReturnModal(true);
-  };
 
-  const submitReturnRequest = async () => {
-    const itemsToReturn = selectedItemsForReturn.filter(item => item.selected);
-
-    if (itemsToReturn.length === 0) {
-      toast.error('Please select at least one item to return');
-      return;
-    }
-
-    try {
-      setSubmittingReturn(true);
-      const payload = {
-        order_id: orderId,
-        type: returnType,
-        items: itemsToReturn.map(item => ({
-          order_item_id: item.order_item_id,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          reason: item.reason
-        })),
-        description: returnDescription
-      };
-
-      const response = await api.post('/returns/request', payload);
-
-      if (response.data.success) {
-        toast.success('Return request submitted successfully!');
-        setShowReturnModal(false);
-        setReturnSubmitted(true);
-        // Fetch updated return status from DB (handles both auth and guest)
-        const query = new URLSearchParams(location.search);
-        const email = query.get('email') || localStorage.getItem('customer_email');
-        fetchReturnStatus(email);
-        fetchOrderDetails();
-
-      }
-    } catch (error) {
-      console.error('Error submitting return:', error);
-      toast.error(error.response?.data?.message || 'Failed to submit return request');
-    } finally {
-      setSubmittingReturn(false);
-    }
-  };
-
-  const toggleItemSelection = (index) => {
-    const updated = [...selectedItemsForReturn];
-    updated[index].selected = !updated[index].selected;
-    setSelectedItemsForReturn(updated);
-  };
-
-  const handleItemReasonChange = (index, reason) => {
-    const updated = [...selectedItemsForReturn];
-    updated[index].reason = reason;
-    setSelectedItemsForReturn(updated);
-  };
 
   const rateProducts = () => {
     navigate(`/rate-order/${orderId}`);
@@ -604,53 +457,28 @@ const OrderDetails = () => {
 
               <div className="space-y-4">
                 {steps.map((step, idx) => {
-                  const returnColors = {
-                    requested: { bg: 'bg-orange-500', border: 'border-orange-300', badge: 'bg-orange-50 text-orange-700 border-orange-200', text: 'text-orange-700', label: '⏳ Awaiting Admin Review' },
-                    approved: { bg: 'bg-blue-500', border: 'border-blue-300', badge: 'bg-blue-50 text-blue-700 border-blue-200', text: 'text-blue-700', label: '✅ Approved — Please ship item back' },
-                    processing: { bg: 'bg-yellow-500', border: 'border-yellow-300', badge: 'bg-yellow-50 text-yellow-700 border-yellow-200', text: 'text-yellow-700', label: '🔄 Being Processed' },
-                    completed: { bg: 'bg-green-600', border: 'border-green-400', badge: 'bg-green-50 text-green-700 border-green-200', text: 'text-green-700', label: '🎉 Completed — Refund Initiated' },
-                    rejected: { bg: 'bg-red-500', border: 'border-red-300', badge: 'bg-red-50 text-red-700 border-red-200', text: 'text-red-700', label: '❌ Request Rejected' },
-                    cancelled: { bg: 'bg-gray-400', border: 'border-gray-300', badge: 'bg-gray-50 text-gray-600 border-gray-200', text: 'text-gray-600', label: '🚫 Cancelled' },
-                  };
-                  const rc = step.isReturn ? (returnColors[step.status] || returnColors.requested) : null;
-
-                  return (
                     <div key={step.id} className="flex items-start gap-4">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${step.isReturn ? rc.bg : step.completed ? 'bg-green-500' : 'bg-gray-200'
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${step.completed ? 'bg-green-500' : 'bg-gray-200'
                         }`}>
-                        {step.isReturn ? (
-                          <FaUndo className="w-4 h-4 text-white" />
-                        ) : step.completed ? (
+                        {step.completed ? (
                           <FaCheckCircle className="w-5 h-5 text-white" />
                         ) : (
                           <span className="text-gray-600 font-medium">{step.id}</span>
                         )}
                       </div>
-                      <div className={`pb-4 flex-1 ${idx < steps.length - 1 ? 'border-l-2' : ''} ${step.isReturn ? rc.border : step.completed ? 'border-green-500' : 'border-gray-300'
+                      <div className={`pb-4 flex-1 ${idx < steps.length - 1 ? 'border-l-2' : ''} ${step.completed ? 'border-green-500' : 'border-gray-300'
                         } pl-2`}>
-                        <h3 className={`font-medium ${step.isReturn ? rc.text : step.current ? 'text-green-700' : 'text-gray-700'}`}>
+                        <h3 className={`font-medium ${step.current ? 'text-green-700' : 'text-gray-700'}`}>
                           {step.label}
                         </h3>
                         <p className="text-sm text-gray-500">{step.description}</p>
                         {step.current && (
-                          <div className={`mt-2 px-3 py-1 text-xs rounded-full inline-block border ${step.isReturn ? rc.badge : 'bg-green-50 text-green-700 border-green-200'
-                            }`}>
-                            {step.isReturn ? rc.label : 'Current Status'}
-                          </div>
-                        )}
-                        {step.isReturn && step.adminNotes && (
-                          <div className="mt-2 p-2 bg-gray-50 rounded-lg border border-gray-200 text-xs text-gray-600">
-                            <span className="font-semibold">Admin Note:</span> {step.adminNotes}
-                          </div>
-                        )}
-                        {step.isReturn && step.refundAmount && ['approved', 'processing', 'completed'].includes(step.status) && (
-                          <div className="mt-1 text-xs font-semibold text-green-700">
-                            💰 Estimated Refund: ₹{parseFloat(step.refundAmount).toFixed(2)}
+                          <div className={`mt-2 px-3 py-1 text-xs rounded-full inline-block border bg-green-50 text-green-700 border-green-200`}>
+                            Current Status
                           </div>
                         )}
                       </div>
                     </div>
-                  );
                 })}
               </div>
             </div>
@@ -925,148 +753,7 @@ const OrderDetails = () => {
         </div>
       </div>
 
-      {/* Return Request Modal */}
-      {showReturnModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-            <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-gradient-to-r from-gray-50 to-white">
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">Return / Exchange Request</h2>
-                <p className="text-gray-500 text-sm">Select items you want to return or exchange</p>
-              </div>
-              <button
-                onClick={() => setShowReturnModal(false)}
-                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-                id="close-return-modal"
-              >
-                <FaTimesCircle className="w-6 h-6 text-gray-400" />
-              </button>
-            </div>
 
-            <div className="p-6 space-y-6">
-              {/* Type Selection */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">Request Type</label>
-                <div className="flex gap-4">
-                  <button
-                    onClick={() => setReturnType('return')}
-                    className={`flex-1 py-4 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-3 font-semibold ${returnType === 'return'
-                      ? 'border-green-600 bg-green-50 text-green-700 shadow-md transform scale-[1.02]'
-                      : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                      }`}
-                  >
-                    <FaUndo className="w-5 h-5" />
-                    Return for Refund
-                  </button>
-                  <button
-                    onClick={() => setReturnType('exchange')}
-                    className={`flex-1 py-4 px-4 rounded-xl border-2 transition-all flex items-center justify-center gap-3 font-semibold ${returnType === 'exchange'
-                      ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-md transform scale-[1.02]'
-                      : 'border-gray-200 text-gray-500 hover:bg-gray-50'
-                      }`}
-                  >
-                    <FaSync className="w-5 h-5" />
-                    Exchange Item
-                  </button>
-                </div>
-              </div>
-
-              {/* Items List */}
-              <div className="bg-gray-50 rounded-2xl p-4 border border-gray-200">
-                <label className="block text-sm font-bold text-gray-700 mb-4 uppercase tracking-wider">Select Items to {returnType === 'return' ? 'Return' : 'Exchange'}</label>
-                <div className="space-y-3">
-                  {selectedItemsForReturn.map((item, index) => (
-                    <div
-                      key={index}
-                      className={`p-4 rounded-xl border-2 transition-all ${item.selected
-                        ? 'border-green-500 bg-white shadow-sm'
-                        : 'border-gray-200 bg-white opacity-70'
-                        }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div
-                          onClick={() => toggleItemSelection(index)}
-                          className={`w-6 h-6 rounded-md border-2 flex items-center justify-center cursor-pointer transition-colors ${item.selected ? 'bg-green-600 border-green-600' : 'border-gray-300 bg-white'
-                            }`}
-                        >
-                          {item.selected && <FaCheckCircle className="w-4 h-4 text-white" />}
-                        </div>
-                        <div className="flex-1 cursor-pointer" onClick={() => toggleItemSelection(index)}>
-                          <h4 className="font-bold text-gray-800">{item.product_name}</h4>
-                          <p className="text-sm text-gray-500">Ordered Quantity: <span className="font-semibold text-gray-700">{item.quantity}</span></p>
-                        </div>
-                      </div>
-
-                      {item.selected && (
-                        <div className="mt-4 pt-4 border-t border-gray-100 animate-fadeIn">
-                          <label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wider">
-                            Reason for {returnType}:
-                          </label>
-                          <div className="relative">
-                            <select
-                              value={item.reason}
-                              onChange={(e) => handleItemReasonChange(index, e.target.value)}
-                              className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-sm font-medium focus:ring-2 focus:ring-green-500 outline-none appearance-none"
-                            >
-                              <option value="wrong_item">Wrong Item Sent</option>
-                              <option value="damaged">Damaged or Defective Item</option>
-                              <option value="size_issue">Size / Fit Issue</option>
-                              <option value="not_matching_desc">Product Quality Not as Expected</option>
-                              <option value="changed_mind">Changed My Mind / No Longer needed</option>
-                              <option value="others">Other Reasons</option>
-                            </select>
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                              <FaArrowDown className="w-3 h-3 text-gray-400" />
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2 uppercase tracking-wider">Additional Description</label>
-                <textarea
-                  value={returnDescription}
-                  onChange={(e) => setReturnDescription(e.target.value)}
-                  placeholder="Tell us more about why you want a return/exchange..."
-                  className="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 outline-none min-h-[120px] transition-all"
-                ></textarea>
-              </div>
-            </div>
-
-            <div className="p-6 border-t border-gray-100 flex gap-4 bg-gray-50">
-              <button
-                onClick={() => setShowReturnModal(false)}
-                className="flex-1 py-4 px-4 bg-white border-2 border-gray-200 text-gray-600 rounded-xl font-bold hover:bg-gray-100 transition-colors"
-                disabled={submittingReturn}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={submitReturnRequest}
-                className="flex-1 py-4 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transition-all disabled:opacity-50 flex items-center justify-center gap-2"
-                disabled={submittingReturn}
-              >
-                {submittingReturn ? (
-                  <>
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    Submitting...
-                  </>
-                ) : (
-                  <>
-                    <FaCheckCircle className="w-5 h-5" />
-                    Confirm {returnType === 'return' ? 'Return' : 'Exchange'}
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Print Styles */}
       <style jsx>{`
