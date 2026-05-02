@@ -84,7 +84,6 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({});
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [returnRequests, setReturnRequests] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // ✅ Reports State
@@ -142,9 +141,6 @@ const AdminDashboard = () => {
           break;
         case 'orders':
           await fetchOrders();
-          break;
-        case 'returns':
-          await fetchReturnRequests();
           break;
         default:
           break;
@@ -554,41 +550,6 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchReturnRequests = async () => {
-    try {
-      console.log('📡 Fetching return requests from API...');
-      const response = await api.get('/returns/admin/all');
-
-      if (response.data.success) {
-        setReturnRequests(response.data.returns);
-      } else {
-        console.error('❌ API returned error:', response.data);
-      }
-    } catch (error) {
-      console.error('❌ Fetch return requests error:', error);
-    }
-  };
-
-  const updateReturnStatus = async (returnId, newStatus, adminNotes = '') => {
-    try {
-      const response = await api.put(`/returns/admin/${returnId}/status`, {
-        status: newStatus,
-        admin_notes: adminNotes
-      });
-
-      if (response.data.success) {
-        toast.success(`Return status updated to ${newStatus}`);
-        fetchReturnRequests();
-      } else {
-        toast.error('Failed to update return status');
-      }
-    } catch (error) {
-      console.error('Error updating return status:', error);
-      const errorMessage = error.response?.data?.message || error.message || 'Error updating return status';
-      toast.error(`Failed: ${errorMessage}`);
-    }
-  };
-
   const setDefaultStats = () => {
     setStats({
       total_sales: 0,
@@ -805,7 +766,7 @@ const AdminDashboard = () => {
         {/* Tabs */}
         <div className="bg-white rounded-2xl shadow-lg border border-gray-100 mb-8 overflow-hidden">
           <div className="flex overflow-x-auto hide-scrollbar hide-scroll">
-            {['dashboard', 'stock', 'sales', 'pending', 'delivery', 'products', 'orders', 'returns'].map((tab) => {
+            {['dashboard', 'stock', 'sales', 'pending', 'delivery', 'products', 'orders'].map((tab) => {
               const icons = {
                 dashboard: <FaChartLine className="w-4 h-4" />,
                 stock: <FaWarehouse className="w-4 h-4" />,
@@ -813,8 +774,7 @@ const AdminDashboard = () => {
                 pending: <FaClipboardList className="w-4 h-4" />,
                 delivery: <FaTruck className="w-4 h-4" />,
                 products: <FaBox className="w-4 h-4" />,
-                orders: <FaShoppingBag className="w-4 h-4" />,
-                returns: <FaUndo className="w-4 h-4" />
+                orders: <FaShoppingBag className="w-4 h-4" />
               };
 
               const labels = {
@@ -824,8 +784,7 @@ const AdminDashboard = () => {
                 pending: 'Pending Orders',
                 delivery: 'Delivery Tracking',
                 products: 'Products',
-                orders: 'Orders',
-                returns: 'Returns'
+                orders: 'Orders'
               };
 
               return (
@@ -904,13 +863,6 @@ const AdminDashboard = () => {
                   orders={orders}
                   onStatusUpdate={updateOrderStatus}
                   onRefresh={fetchOrders}
-                />
-              )}
-              {activeTab === 'returns' && (
-                <ReturnRequestsTab
-                  returns={returnRequests}
-                  onStatusUpdate={updateReturnStatus}
-                  onRefresh={fetchReturnRequests}
                 />
               )}
             </>
@@ -3886,134 +3838,5 @@ const OrdersTab = ({ orders, onStatusUpdate }) => {
   );
 };
 
-const ReturnRequestsTab = ({ returns, onStatusUpdate, onRefresh }) => {
-  const statusColors = {
-    requested: 'bg-gray-100 text-gray-800 border-gray-200',
-    approved: 'bg-blue-100 text-blue-800 border-blue-200',
-    rejected: 'bg-red-100 text-red-800 border-red-200',
-    processing: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-    completed: 'bg-green-100 text-green-800 border-green-200',
-    cancelled: 'bg-gray-200 text-gray-400 border-gray-300'
-  };
-
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
-  if (returns.length === 0) {
-    return (
-      <div className="text-center py-16 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-300">
-        <FaUndo className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-700">No Return Requests</h3>
-        <p className="text-gray-600 mt-2">Any product return or exchange requests will appear here.</p>
-        <button onClick={onRefresh} className="mt-4 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700">
-          Refresh List
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-        <div>
-          <h2 className="text-xl font-bold text-gray-800">Return & Exchange Requests</h2>
-          <p className="text-sm text-gray-500">Manage customer returns and processing</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="px-3 py-1 bg-primary-50 text-primary-700 font-bold rounded-full text-sm">
-            {returns.length} Requests
-          </span>
-          <button onClick={onRefresh} className="p-2 hover:bg-gray-100 rounded-lg transition-colors">
-            <FaSync className="w-4 h-4 text-gray-500" />
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6">
-        {returns.map((request) => (
-          <div key={request.id} className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-            <div className="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gray-50/50">
-              <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shadow-lg ${request.type === 'return' ? 'bg-orange-500' : 'bg-blue-500'}`}>
-                  {request.type === 'return' ? <FaUndo className="w-6 h-6" /> : <FaSync className="w-6 h-6" />}
-                </div>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h3 className="text-lg font-bold text-gray-800">Request #{request.id}</h3>
-                    <span className={`px-2 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${request.type === 'return' ? 'bg-orange-100 text-orange-700' : 'bg-blue-100 text-blue-700'}`}>
-                      {request.type}
-                    </span>
-                  </div>
-                  <p className="text-sm text-gray-500">Order #{request.order_id} • {formatDate(request.created_at)}</p>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <div className={`px-4 py-1.5 rounded-full text-sm font-bold border ${statusColors[request.status] || 'bg-gray-100'}`}>
-                  {request.status.toUpperCase()}
-                </div>
-                <select value={request.status} onChange={(e) => onStatusUpdate(request.id, e.target.value)} className="px-3 py-1.5 bg-white border border-gray-300 rounded-lg text-sm font-medium focus:ring-2 focus:ring-primary-500 outline-none">
-                  <option value="requested">Set to Requested</option>
-                  <option value="approved">Approve Request</option>
-                  <option value="processing">Mark Processing</option>
-                  <option value="completed">Complete / Refunded</option>
-                  <option value="rejected">Reject Request</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Customer Info</h4>
-                    <p className="font-bold text-gray-800">{request.user_name}</p>
-                    <p className="text-sm text-gray-600">{request.user_email}</p>
-                  </div>
-                  <div className="p-3 bg-gray-50 rounded-xl border border-gray-100">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-sm text-gray-500">Estimated Refund:</span>
-                      <span className="font-bold text-gray-800">₹{parseFloat(request.refund_amount || 0).toFixed(2)}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-500">Total Items:</span>
-                      <span className="font-bold text-gray-800">{request.item_count}</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="lg:col-span-2">
-                  <h4 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Request Details</h4>
-                  <div className="bg-blue-50/50 p-4 rounded-xl border border-blue-100">
-                    <p className="text-sm font-bold text-blue-800 mb-1 capitalize">Reason: {request.reason?.replace(/_/g, ' ')}</p>
-                    <p className="text-gray-700 italic">"{request.description || 'No additional description provided'}"</p>
-                  </div>
-                  {request.admin_notes && (
-                    <div className="mt-3 p-3 bg-emerald-50 rounded-xl border border-emerald-100">
-                      <p className="text-xs font-bold text-emerald-800 mb-1">OFFICE NOTES:</p>
-                      <p className="text-sm text-emerald-700">{request.admin_notes}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="mt-6 flex justify-end">
-                <button onClick={() => { const notes = prompt('Enter admin notes for this request:', request.admin_notes || ''); if (notes !== null) onStatusUpdate(request.id, request.status, notes); }} className="text-primary-600 text-sm font-bold hover:underline flex items-center gap-1">
-                  <FaEdit className="w-3 h-3" />
-                  {request.admin_notes ? 'Edit Notes' : 'Add Admin Notes'}
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
 
 export default AdminDashboard;

@@ -6,7 +6,6 @@ import { AuthProvider } from './context/AuthContext';
 import { CartProvider } from './context/CartContext';
 import { WishlistProvider } from './context/WishlistContext';
 import { ReviewsProvider } from './context/ReviewsContext';
-import { ReturnsProvider } from './context/ReturnsContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -22,7 +21,6 @@ import OrderConfirmation from './components/OrderConfirmation';
 import OrderTracking from './components/OrderTracking';
 import OrderItemTracking from './components/OrderItemTracking';
 import Wishlist from './pages/Wishlist';
-import UserReturns from './pages/UserReturns';
 import Profile from './pages/Profile';
 import OrderDetails from './pages/OrderDetails';
 import InvoicePage from './pages/InvoicePage';
@@ -33,8 +31,7 @@ function App() {
       <CartProvider>
         <WishlistProvider>
           <ReviewsProvider>
-            <ReturnsProvider>
-              <Router
+            <Router
                 future={{
                   v7_startTransition: true,
                   v7_relativeSplatPath: true,
@@ -55,7 +52,7 @@ function App() {
                         <Route path="/login" element={<Login />} />
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/orders" element={<Orders />} />
-                        {/* <Route path="/returns" element={<UserReturns />} /> */}
+
                         <Route path="/wishlist" element={<Wishlist />} />
                         <Route path="/admin" element={<AdminDashboard />} />
                         <Route path="/order-confirmed/:orderId" element={<OrderConfirmation />} />
@@ -115,7 +112,6 @@ function App() {
 />
                 </div>
               </Router>
-            </ReturnsProvider>
           </ReviewsProvider>
         </WishlistProvider>
       </CartProvider>

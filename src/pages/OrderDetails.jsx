@@ -902,25 +902,7 @@ const OrderDetails = () => {
             <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border border-green-200">
               <h3 className="font-bold text-gray-800 mb-4">Order Actions</h3>
               <div className="space-y-3">
-                {/* TEMPORARILY DISABLED RETURN FEATURE
-                {order.order_status === 'delivered' && !returnInfo && (
-                  <button
-                    onClick={requestReturn}
-                    className="w-full bg-white text-green-600 border border-green-600 py-3 rounded-lg hover:bg-green-50 transition-colors flex items-center justify-center gap-2 shadow-sm"
-                  >
-                    <FaUndo className="w-4 h-4" />
-                    Request Return/Exchange
-                  </button>
-                )}
-                */}
-                {returnInfo && (
-                  <div className="w-full bg-orange-50 border border-orange-200 py-3 px-4 rounded-lg text-sm text-orange-700 flex items-center gap-2">
-                    <FaUndo className="w-4 h-4 flex-shrink-0" />
-                    <span>
-                      Return <strong>{returnInfo.type}</strong> request is <strong>{returnInfo.status}</strong>. See progress above.
-                    </span>
-                  </div>
-                )}
+
                 {order.order_status === 'delivered' && (
                   <button
                     onClick={rateProducts}

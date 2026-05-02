@@ -652,10 +652,7 @@ const Checkout = () => {
                     <FaShieldAlt className="w-8 h-8 text-green-600 mx-auto mb-2" />
                     <p className="text-sm font-medium text-gray-700">100% Safe</p>
                   </div>
-                  {/* <div className="text-center">
-                    <FaUndo className="w-8 h-8 text-green-600 mx-auto mb-2" />
-                    <p className="text-sm font-medium text-gray-700">Easy Returns</p>
-                  </div> */}
+
                 </div>
               </div>
 

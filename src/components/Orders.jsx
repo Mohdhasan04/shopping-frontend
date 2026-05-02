@@ -31,15 +31,11 @@ import {
   FaPhone
 } from 'react-icons/fa';
 
-import { useReturns } from '../context/ReturnsContext';
-
 const Orders = () => {
   const [orders, setOrders] = useState([]);
-  const [myReturns, setMyReturns] = useState([]); // ✅ Added state for returns
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const { createReview } = useReviews();
-  const { getUserReturns } = useReturns(); // ✅ Get returns function
   const [showReviewForm, setShowReviewForm] = useState(null);
   const navigate = useNavigate();
 
@@ -47,7 +43,6 @@ const Orders = () => {
     // Auto-refresh orders every 60 seconds
     const interval = setInterval(() => {
       fetchOrders();
-      fetchMyReturns(); // ✅ Refresh returns
     }, 60000);
 
     return () => clearInterval(interval);
@@ -55,20 +50,9 @@ const Orders = () => {
 
   useEffect(() => {
     fetchOrders();
-    fetchMyReturns(); // ✅ Fetch returns on mount
   }, [user]);
 
-  // ✅ New function to fetch returns
-  const fetchMyReturns = async () => {
-    if (user) {
-      try {
-        const returns = await getUserReturns();
-        setMyReturns(returns || []);
-      } catch (error) {
-        console.error('Failed to fetch returns:', error);
-      }
-    }
-  };
+
 
   const fetchOrders = async () => {
     try {
@@ -354,9 +338,7 @@ const Orders = () => {
           </div>
         </div>
 
-        {/* Stats Overview */}
-        {(orders.length > 0 || myReturns.length > 0) && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"> {/* ✅ Changed column count */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div className="bg-white rounded-xl p-4 shadow border border-gray-100">
               <div className="flex items-center justify-between">
                 <div>
@@ -365,21 +347,6 @@ const Orders = () => {
                 </div>
                 <div className="p-3 bg-green-50 rounded-lg">
                   <FaBox className="w-6 h-6 text-green-600" />
-                </div>
-              </div>
-            </div>
-
-            {/* ✅ NEW RETURNS CARD */}
-            <div className="cursor-pointer bg-white rounded-xl p-4 shadow border border-gray-100 hover:shadow-md transition-shadow" onClick={() => navigate('/returns')}>
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-600">Returns</p>
-                  <p className="text-2xl font-bold text-orange-600">
-                    {myReturns.length}
-                  </p>
-                </div>
-                <div className="p-3 bg-orange-50 rounded-lg">
-                  <FaUndo className="w-6 h-6 text-orange-600" />
                 </div>
               </div>
             </div>
@@ -663,12 +630,7 @@ const Orders = () => {
                       </div>
 
                       <div className="flex items-center gap-4">
-                        {/* {order.order_status === 'delivered' && (
-                          <button className="text-green-600 hover:text-green-700 font-medium text-sm flex items-center gap-1">
-                            <FaUndo className="w-4 h-4" />
-                            Request Return
-                          </button>
-                        )} */}
+
 
                         <button
                           onClick={() => viewOrderDetails(order.id)}
